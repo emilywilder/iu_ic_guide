@@ -2,7 +2,7 @@ import urllib2
 import abc
 import re
 import StringIO
-import sys
+import argparse
 import json
 
 FAQ_LOC = "http://db.gamefaqs.com/console/xbox360/file/infinite_undiscovery.txt"
@@ -139,8 +139,13 @@ class ParseSplit:
         self.parser.write(output)
 
 if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        i = ParseSplit(sys.argv[1])
-        i.parseurl()
-        i.writejson(sys.argv[2])
+    parser = argparse.ArgumentParser(description="Parse Split Infinity's Infinite Undiscovery FAQ IC items into JSON")
+    parser.add_argument("--faqpath", default=FAQ_LOC, help="local or remote location of Split Infinity's Infinite Undiscovery FAQ. If you use an argument that starts with http, we assume it's a web location; otherwise it's treated as a local file name")
+    parser.add_argument("jsonoutput", help="file to output IC items in JSON format")
+
+    args = parser.parse_args()
+
+    ps = ParseSplit(args.faqpath)
+    ps.parseurl()
+    ps.writejson(args.jsonoutput)
 
