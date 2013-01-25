@@ -119,7 +119,7 @@ class ICItemParser(ABCIUParser):
                                      "obj": each})
                 self.itemdata[item] = { "ic": _tmp}
 
-class IUItems:
+class ParseSplit:
     def __init__(self, url):
         self.url = url
         self.parser = SectionParser()
@@ -140,7 +140,7 @@ class IUItems:
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:
-        i = IUItems(sys.argv[1])
+        i = ParseSplit(sys.argv[1])
         i.parseurl()
         i.writejson(sys.argv[2])
 
