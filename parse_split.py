@@ -11,18 +11,22 @@ class ABCParser:
     __metaclass__ = abc.ABCMeta
     terminator = None
 
-    def __init__(self, io_obj):
-        if isinstance(io_obj, basestring):
-            io_obj = StringIO.StringIO(io_obj)
-        self.io_obj = io_obj
+    def __init__(self):
+        self.io_src = None
         self._buffer = ""
         self.data = ""
+
+    def setiosrc(self, io_src):
+        if isinstance(io_src, basestring):
+            self.io_src = StringIO.StringIO(io_src)
+        else:
+            self.io_src = io_src
 
     def foundterminator(self):
         raise NotImplementedError
 
     def read(self):
-        for _line in self.io_obj:
+        for _line in self.io_src:
             self._buffer += _line
             if self._buffer.find(self.terminator) > -1:
                 self.data = self._buffer
@@ -70,7 +74,8 @@ class SectionParser(ABCSectionParser):
     def foundterminator(self):
         if self.in_section: print "SECTION: " + self.section_name
         if self.in_section and self.section_name == "ITEM CREATION LISTS":
-            ic = ICSectionParser(self.data)
+            ic = ICSectionParser()
+            ic.setiosrc(self.data)
             ic.read()
         self._foundterminatorfinish()
 
@@ -81,7 +86,8 @@ class ICSectionParser(ABCSectionParser):
     def foundterminator(self):
         if self.in_section: print "USER: " + self.section_name
         if self.in_section:
-            item = ICItemParser(self.data)
+            item = ICItemParser()
+            item.setiosrc(self.data)
             item.read()
         self._foundterminatorfinish()
 
@@ -116,21 +122,25 @@ class ICItemParser(ABCIUParser):
 class IUItems:
     def __init__(self, url):
         self.url = url
+        self.parser = SectionParser()
 
-    def parseurl(self, output):
+    def parseurl(self):
         if self.url.startswith("http"):
             _f = urllib2.urlopen(self.url)
         else:
             _f = open(self.url, "r")
         try:
-            _sp = SectionParser(_f)
-            _sp.read()
-            _sp.write(output)
+            self.parser.setiosrc(_f)
+            self.parser.read()
         finally:
             _f.close()
+
+    def writejson(self, output):
+        self.parser.write(output)
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:
         i = IUItems(sys.argv[1])
-        i.parseurl(sys.argv[2])
+        i.parseurl()
+        i.writejson(sys.argv[2])
 
