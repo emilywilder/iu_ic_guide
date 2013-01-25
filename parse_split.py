@@ -3,6 +3,7 @@ import abc
 import re
 import StringIO
 import sys
+import json
 
 FAQ_LOC = "http://db.gamefaqs.com/console/xbox360/file/infinite_undiscovery.txt"
 
@@ -37,6 +38,10 @@ class ABCIUParser(ABCParser):
 
     def setitemdata(self, itemdata):
         self.itemdata = itemdata
+
+    def write(self, output_file):
+        with open(output_file, "w") as _f:
+            json.dump(self.itemdata, _f)
 
 class ABCSectionParser(ABCIUParser):
     terminator = None
@@ -113,7 +118,7 @@ class IUItems:
     def __init__(self, url):
         self.url = url
 
-    def parseurl(self):
+    def parseurl(self, output):
         if self.url.startswith("http"):
             _f = urllib2.urlopen(self.url)
         else:
@@ -121,11 +126,12 @@ class IUItems:
         try:
             _sp = SectionParser(_f)
             _sp.read()
+            _sp.write(output)
         finally:
             _f.close()
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
         i = IUItems(sys.argv[1])
-        i.parseurl()
+        i.parseurl(sys.argv[2])
 
