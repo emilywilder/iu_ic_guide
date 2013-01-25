@@ -99,7 +99,7 @@ class ICItemParser(ABCIUParser):
 
     def setitemdata(self, item, materials):
         if item:
-            item = item.strip()
+            item = item.strip().strip('"')
             if materials:
                 materials = [x.strip() for x in materials.splitlines()]
                 for each in materials:
