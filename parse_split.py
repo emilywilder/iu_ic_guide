@@ -33,6 +33,10 @@ class ABCParser:
 class ABCIUParser(ABCParser):
     seperator_equals = "=" * 79
     seperator_minus = "-" * 79
+    itemdata = {}
+
+    def setitemdata(self, itemdata):
+        self.itemdata = itemdata
 
 class ABCSectionParser(ABCIUParser):
     terminator = None
@@ -62,7 +66,6 @@ class SectionParser(ABCSectionParser):
     def foundterminator(self):
         if self.in_section: print "SECTION: " + self.section_name
         if self.in_section and self.section_name == "ITEM CREATION LISTS":
-            print "in ic section"
             ic = ICSectionParser(self.data)
             ic.read()
         self._foundterminatorfinish()
@@ -81,16 +84,30 @@ class ICSectionParser(ABCSectionParser):
 class ICItemParser(ABCIUParser):
     terminator = "\r\n{0}\r\n".format(ABCSectionParser.seperator_minus)
     item_regex = re.compile("(.+)\(.+\):(.+)\n(\[ \])?\s+- -", flags=re.DOTALL)
+    multiple_regex = re.compile("(\d+)x (.+)")
 
     def foundterminator(self):
         _match = self.item_regex.search(self.data)
         if _match:
             _item = _match.group(1)
             _materials = _match.group(2)
-            if _item: _item = _item.strip()
-            if _materials:
-                _materials = [x.strip() for x in _materials.splitlines()]
-            print "Item: {0}, Materials: {1}".format(_item, _materials)
+            self.setitemdata(_item, _materials)
+
+    def setitemdata(self, item, materials):
+        if item:
+            item = item.strip()
+            if materials:
+                materials = [x.strip() for x in materials.splitlines()]
+                for each in materials:
+                    _tmp = []
+                    _match = self.multiple_regex.match(each)
+                    if _match:
+                        _tmp.append({"num": _match.groups()[0],
+                                     "obj": _match.groups()[1]})
+                    else:
+                        _tmp.append({"num": 1,
+                                     "obj": each})
+                self.itemdata[item] = { "ic": _tmp}
 
 class IUItems:
     def __init__(self, url):
