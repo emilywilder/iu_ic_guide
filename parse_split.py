@@ -32,18 +32,17 @@ class ABCParser:
         self.foundterminator()
 
 class ABCIUParser(ABCParser):
+    __metaclass__ = abc.ABCMeta
     seperator_equals = "=" * 79
     seperator_minus = "-" * 79
     itemdata = {}
-
-    def setitemdata(self, itemdata):
-        self.itemdata = itemdata
 
     def write(self, output_file):
         with open(output_file, "w") as _f:
             json.dump(self.itemdata, _f)
 
 class ABCSectionParser(ABCIUParser):
+    __metaclass__ = abc.ABCMeta
     terminator = None
     header_regex = None
     in_section = False
@@ -66,7 +65,7 @@ class ABCSectionParser(ABCIUParser):
 
 class SectionParser(ABCSectionParser):
     terminator = "\r\n{0}\r\n{0}\r\n".format(ABCSectionParser.seperator_equals)
-    header_regex = re.compile("\.\)(.*) - G.*\r\n")
+    header_regex = re.compile(r"\.\)(.*) - G.*\r\n")
 
     def foundterminator(self):
         if self.in_section: print "SECTION: " + self.section_name
@@ -77,7 +76,7 @@ class SectionParser(ABCSectionParser):
 
 class ICSectionParser(ABCSectionParser):
     terminator = "\r\n{0}\r\n".format(ABCSectionParser.seperator_equals)
-    header_regex = re.compile("(.*) - .*\r\n")
+    header_regex = re.compile(r"(.*) - .*\r\n")
 
     def foundterminator(self):
         if self.in_section: print "USER: " + self.section_name
@@ -88,8 +87,8 @@ class ICSectionParser(ABCSectionParser):
 
 class ICItemParser(ABCIUParser):
     terminator = "\r\n{0}\r\n".format(ABCSectionParser.seperator_minus)
-    item_regex = re.compile("(.+)\(.+\):(.+)\n(\[ \])?\s+- -", flags=re.DOTALL)
-    multiple_regex = re.compile("(\d+)x (.+)")
+    item_regex = re.compile(r"(.+)\(.+\):(.+)\n(\[ \])?\s+- -", flags=re.DOTALL)
+    multiple_regex = re.compile(r"(\d+)x (.+)")
 
     def foundterminator(self):
         _match = self.item_regex.search(self.data)
