@@ -35,8 +35,9 @@ class GenerateItems:
     def _itericdeps(self):
         for item in self.needed_items:
             if self.items_db.has_key(item.get("obj")):
-                for rec in self.items_db.get(item.get("obj")).get("ic"):
-                    yield rec
+                for i in xrange(int(item.get("num"))):
+                    for rec in self.items_db.get(item.get("obj")).get("ic"):
+                        yield rec
 
     def _aggregate(self):
         for dep in self._itericdeps():
