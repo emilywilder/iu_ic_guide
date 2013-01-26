@@ -46,6 +46,21 @@ class GenerateItems:
             else:
                 self.materials[dep.get("obj")] = int(dep.get("num"))
 
+    def recur_aggregate(self):
+        self._loaddata()
+        self._recur_aggregate(self._itericdeps())
+
+    def _recur_aggregate(self, dataset):
+        for dep in dataset:
+            if self.items_db.has_key(dep.get("obj")):
+                rec = self.items_db.get(dep.get("obj")).get("ic")
+                self._recur_aggregate(rec)
+            else:
+                if self.materials.has_key(dep.get("obj")):
+                    self.materials[dep.get("obj")] += int(dep.get("num"))
+                else:
+                    self.materials[dep.get("obj")] = int(dep.get("num"))
+
     def report(self):
         for k, v in sorted(self.materials.items()):
             self.logger.info("{0}: {1}".format(k, v))
@@ -68,6 +83,6 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(message)s", level=llevel)
 
     gi = GenerateItems(args.itemdb, args.neededitems)
-    gi.aggregate()
+    gi.recur_aggregate()
     gi.report()
 
