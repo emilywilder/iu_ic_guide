@@ -110,8 +110,8 @@ class ICItemParser(ABCIUParser):
             item = item.strip().strip('"')
             if materials:
                 materials = [x.strip() for x in materials.splitlines()]
+                _tmp = []
                 for each in materials:
-                    _tmp = []
                     _match = self.multiple_regex.match(each)
                     if _match:
                         _tmp.append({"num": _match.groups()[0],
