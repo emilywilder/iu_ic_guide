@@ -4,6 +4,7 @@ import re
 import StringIO
 import argparse
 import json
+import logging
 
 FAQ_LOC = "http://db.gamefaqs.com/console/xbox360/file/infinite_undiscovery.txt"
 
@@ -40,6 +41,7 @@ class ABCIUParser(ABCParser):
     seperator_equals = "=" * 79
     seperator_minus = "-" * 79
     itemdata = {}
+    logger = logging.getLogger("SplitParser")
 
     def write(self, output_file):
         with open(output_file, "w") as _f:
@@ -72,7 +74,7 @@ class SectionParser(ABCSectionParser):
     header_regex = re.compile(r"\.\)(.*) - G.*\r\n")
 
     def foundterminator(self):
-        if self.in_section: print "SECTION: " + self.section_name
+        if self.in_section: self.logger.info("Parsing section [ {0} ]".format(self.section_name))
         if self.in_section and self.section_name == "ITEM CREATION LISTS":
             ic = ICSectionParser()
             ic.setiosrc(self.data)
@@ -84,7 +86,7 @@ class ICSectionParser(ABCSectionParser):
     header_regex = re.compile(r"(.*) - .*\r\n")
 
     def foundterminator(self):
-        if self.in_section: print "USER: " + self.section_name
+        if self.in_section: self.logger.info("==> Parsing user [ {0} ]".format(self.section_name))
         if self.in_section:
             item = ICItemParser()
             item.setiosrc(self.data)
@@ -142,8 +144,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse Split Infinity's Infinite Undiscovery FAQ IC items into JSON")
     parser.add_argument("--faqpath", default=FAQ_LOC, help="local or remote location of Split Infinity's Infinite Undiscovery FAQ. If you use an argument that starts with http, we assume it's a web location; otherwise it's treated as a local file name")
     parser.add_argument("jsonoutput", help="file to output IC items in JSON format")
+    parser.add_argument("--debug", default=False)
 
     args = parser.parse_args()
+
+    if args.debug:
+        llevel = logging.DEBUG
+    else:
+        llevel = logging.INFO
+
+    logging.basicConfig(format="%(message)s", level=llevel)
 
     ps = ParseSplit(args.faqpath)
     ps.parseurl()
