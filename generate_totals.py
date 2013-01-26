@@ -39,12 +39,15 @@ class GenerateItems:
                     for rec in self.items_db.get(item.get("obj")).get("ic"):
                         yield rec
 
+    def _storematerial(self, item):
+        if self.materials.has_key(item.get("obj")):
+            self.materials[item.get("obj")] += int(item.get("num"))
+        else:
+            self.materials[item.get("obj")] = int(item.get("num"))
+
     def _aggregate(self):
         for dep in self._itericdeps():
-            if self.materials.has_key(dep.get("obj")):
-                self.materials[dep.get("obj")] += int(dep.get("num"))
-            else:
-                self.materials[dep.get("obj")] = int(dep.get("num"))
+            self._storematerial(dep)
 
     def recur_aggregate(self):
         self._loaddata()
@@ -56,10 +59,7 @@ class GenerateItems:
                 rec = self.items_db.get(dep.get("obj")).get("ic")
                 self._recur_aggregate(rec)
             else:
-                if self.materials.has_key(dep.get("obj")):
-                    self.materials[dep.get("obj")] += int(dep.get("num"))
-                else:
-                    self.materials[dep.get("obj")] = int(dep.get("num"))
+                self._storematerial(dep)
 
     def report(self):
         for k, v in sorted(self.materials.items()):
