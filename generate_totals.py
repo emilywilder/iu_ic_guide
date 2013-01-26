@@ -6,6 +6,7 @@ ITEMS_DB = "iuitems.json"
 
 class GenerateItems:
     def __init__(self, item_db_file, needed_items_file):
+        self.logger = logging.getLogger("GenerateItems")
         self.item_db_file = item_db_file
         self.needed_items_file = needed_items_file
         self.items_db = {}
@@ -42,7 +43,7 @@ class GenerateItems:
 
     def report(self):
         for k, v in sorted(self.materials.items()):
-            print "{0}: {1}".format(k, v)
+            self.logger.info("{0}: {1}".format(k, v))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolve items needed for IC",
