@@ -141,7 +141,8 @@ class ParseSplit:
         self.parser.write(output)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Parse Split Infinity's Infinite Undiscovery FAQ IC items into JSON")
+    parser = argparse.ArgumentParser(description="Parse Split Infinity's Infinite Undiscovery FAQ IC items into JSON",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--faqpath", default=FAQ_LOC, help="local or remote location of Split Infinity's Infinite Undiscovery FAQ. If you use an argument that starts with http, we assume it's a web location; otherwise it's treated as a local file name")
     parser.add_argument("jsonoutput", help="file to output IC items in JSON format")
     parser.add_argument("--debug", default=False)
