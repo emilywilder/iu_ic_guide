@@ -10,6 +10,7 @@ class GenerateItems:
         self.needed_items_file = needed_items_file
         self.items_db = {}
         self.needed_items = []
+        self.materials = {}
 
     def _loaditemsdb(self):
         with open(self.item_db_file, "r") as f:
@@ -19,14 +20,29 @@ class GenerateItems:
         self.needed_items = []
         with open(self.needed_items_file, "r") as f:
             for _line in f:
-                self.needed_items.append(_line.strip())
+                (_num, _obj) = _line.strip().split('|')
+                self.needed_items.append({"num": _num, "obj": _obj})
 
-    def test(self):
-        self._loaditemsdb()
-        self._loadneededitems()
-        for item in self.needed_items[:5]:
-            deps = self.items_db.get(item, "Item [ {0} ] not found".format(item))
-            print "{0}: {1}".format(item, deps.get('ic'))
+    def _loaddata(self):
+        if not self.items_db: self._loaditemsdb()
+        if not self.needed_items: self._loadneededitems()
+
+    def aggregate(self):
+        self._loaddata()
+        self._aggregate()
+
+    def _aggregate(self):
+        for item in self.needed_items:
+            if self.items_db.has_key(item.get("obj")):
+                for rec in self.items_db.get(item.get("obj")).get("ic"):
+                    if self.materials.has_key(rec.get("obj")):
+                        self.materials[rec.get("obj")] += int(rec.get("num"))
+                    else:
+                        self.materials[rec.get("obj")] = int(rec.get("num"))
+
+    def report(self):
+        for k, v in sorted(self.materials.items()):
+            print "{0}: {1}".format(k, v)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolve items needed for IC",
@@ -46,5 +62,6 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(message)s", level=llevel)
 
     gi = GenerateItems(args.itemdb, args.neededitems)
-    gi.test()
+    gi.aggregate()
+    gi.report()
 
