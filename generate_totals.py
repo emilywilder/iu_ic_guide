@@ -46,7 +46,9 @@ class GenerateItems:
             self.materials[item.get("obj")] = int(item.get("num"))
 
     def _aggregate(self, dataset, recursive=False):
+        self.logger.debug("DEBUG: _aggregate called")
         for dep in dataset:
+            self.logger.debug("DEBUG: dep <{0}>".format(dep))
             if recursive and self.items_db.has_key(dep.get("obj")):
                 rec = self.items_db.get(dep.get("obj")).get("ic")
                 self._aggregate(rec, recursive)
