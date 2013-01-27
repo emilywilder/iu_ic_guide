@@ -32,5 +32,18 @@ class TestGenerateItems(unittest.TestCase):
 
         self.assertEqual(self.gi.materials, expected_results)
 
+    def test_recursive_aggregate(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        expected_results = {"Kenaf Cloth": 54,
+                            "Lentesco Wood": 36,
+                            "Pius Wood": 10,
+                            "Dragon Fang": 10}
+
+        self.gi.needed_items = test_data
+        self.gi._aggregate(self.gi._itericdeps(), recursive=True)
+
+        self.assertEqual(self.gi.materials, expected_results)
+
 if __name__ == "__main__":
     unittest.main()
