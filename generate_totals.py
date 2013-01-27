@@ -22,7 +22,7 @@ class GenerateItems:
         with open(self.needed_items_file, "r") as f:
             for _line in f:
                 (_num, _obj) = _line.strip().split('|')
-                self.needed_items.append({"num": _num, "obj": _obj})
+                self.needed_items.append({"num": int(_num), "obj": _obj})
 
     def _loaddata(self):
         self._loaditemsdb()
