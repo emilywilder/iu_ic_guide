@@ -25,8 +25,8 @@ class GenerateItems:
                 self.needed_items.append({"num": _num, "obj": _obj})
 
     def _loaddata(self):
-        if not self.items_db: self._loaditemsdb()
-        if not self.needed_items: self._loadneededitems()
+        self._loaditemsdb()
+        self._loadneededitems()
 
     def aggregate(self, recursive=False):
         self._loaddata()
