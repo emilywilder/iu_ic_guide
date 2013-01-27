@@ -45,5 +45,64 @@ class TestGenerateItems(unittest.TestCase):
 
         self.assertEqual(self.gi.materials, expected_results)
 
+    def test_obtained(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        obtained_data = {"Halgitian Paper": 3,
+                         "Genius's Quill": 5}
+        expected_results = {"Halgitian Paper": 9,
+                            "Genius's Quill": 3,
+                            "Memoirs of a Hunter": 2}
+
+        self.gi.needed_items = test_data
+        self.gi.obtained_items = obtained_data
+        self.gi._aggregate(self.gi._itericdeps())
+
+        self.assertEqual(self.gi.materials, expected_results)
+
+    def test_obtained_mixed(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        obtained_data = {"Halgitian Paper": 22,
+                         "Genius's Quill": 7}
+        expected_results = {"Genius's Quill": 1,
+                            "Memoirs of a Hunter": 2}
+
+        self.gi.needed_items = test_data
+        self.gi.obtained_items = obtained_data
+        self.gi._aggregate(self.gi._itericdeps())
+
+        self.assertEqual(self.gi.materials, expected_results)
+
+    def test_obtained_recursive(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        obtained_data = {"Halgitian Paper": 3,
+                         "Genius's Quill": 5}
+        expected_results = {"Kenaf Cloth": 45,
+                            "Lentesco Wood": 30,
+                            "Pius Wood": 5,
+                            "Dragon Fang": 5}
+
+        self.gi.needed_items = test_data
+        self.gi.obtained_items = obtained_data
+        self.gi._aggregate(self.gi._itericdeps(), recursive=True)
+
+        self.assertEqual(self.gi.materials, expected_results)
+
+    def test_obtained_recursive_mixed(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        obtained_data = {"Halgitian Paper": 17,
+                         "Genius's Quill": 12}
+        expected_results = {"Kenaf Cloth": 3,
+                            "Lentesco Wood": 2}
+
+        self.gi.needed_items = test_data
+        self.gi.obtained_items = obtained_data
+        self.gi._aggregate(self.gi._itericdeps(), recursive=True)
+
+        self.assertEqual(self.gi.materials, expected_results)
+
 if __name__ == "__main__":
     unittest.main()
