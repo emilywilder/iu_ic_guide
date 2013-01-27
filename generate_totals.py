@@ -60,7 +60,7 @@ class GenerateItems:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolve items needed for IC",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--debug", default=False)
+    parser.add_argument("--debug", action="store_true", default=False)
     parser.add_argument("--itemdb", default=ITEMS_DB,
                         help="file of IC items in JSON format")
     parser.add_argument("--recursive", action="store_true", default=False,
