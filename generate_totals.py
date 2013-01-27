@@ -28,9 +28,9 @@ class GenerateItems:
         if not self.items_db: self._loaditemsdb()
         if not self.needed_items: self._loadneededitems()
 
-    def aggregate(self):
+    def aggregate(self, recursive=False):
         self._loaddata()
-        self._aggregate()
+        self._aggregate(self._itericdeps(), recursive)
 
     def _itericdeps(self):
         for item in self.needed_items:
@@ -45,19 +45,11 @@ class GenerateItems:
         else:
             self.materials[item.get("obj")] = int(item.get("num"))
 
-    def _aggregate(self):
-        for dep in self._itericdeps():
-            self._storematerial(dep)
-
-    def recur_aggregate(self):
-        self._loaddata()
-        self._recur_aggregate(self._itericdeps())
-
-    def _recur_aggregate(self, dataset):
+    def _aggregate(self, dataset, recursive=False):
         for dep in dataset:
-            if self.items_db.has_key(dep.get("obj")):
+            if recursive and self.items_db.has_key(dep.get("obj")):
                 rec = self.items_db.get(dep.get("obj")).get("ic")
-                self._recur_aggregate(rec)
+                self._aggregate(rec, recursive)
             else:
                 self._storematerial(dep)
 
@@ -71,6 +63,8 @@ if __name__ == "__main__":
     parser.add_argument("--debug", default=False)
     parser.add_argument("--itemdb", default=ITEMS_DB,
                         help="file of IC items in JSON format")
+    parser.add_argument("--recursive", action="store_true", default=False,
+                        help="aggregate totals recursively")
     parser.add_argument("neededitems", help="file of items needed")
 
     args = parser.parse_args()
@@ -83,6 +77,6 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(message)s", level=llevel)
 
     gi = GenerateItems(args.itemdb, args.neededitems)
-    gi.recur_aggregate()
+    gi.aggregate(recursive=args.recursive)
     gi.report()
 
