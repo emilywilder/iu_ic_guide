@@ -51,7 +51,8 @@ class GenerateItems:
             self.logger.debug("DEBUG: dep <{0}>".format(dep))
             if recursive and self.items_db.has_key(dep.get("obj")):
                 rec = self.items_db.get(dep.get("obj")).get("ic")
-                self._aggregate(rec, recursive)
+                for i in xrange(int(dep.get("num"))):
+                    self._aggregate(rec, recursive)
             else:
                 self._storematerial(dep)
 
