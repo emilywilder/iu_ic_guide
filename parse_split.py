@@ -87,7 +87,7 @@ class ICSectionParser(ABCSectionParser):
 
     def foundterminator(self):
         if self.in_section: self.logger.info("==> Parsing user [ {0} ]".format(self.section_name))
-        if self.in_section:
+        if self.in_section and self.section_name != "CAPELL":
             item = ICItemParser()
             item.setiosrc(self.data)
             item.read()
