@@ -13,6 +13,7 @@ class GenerateItems:
         self.items_db = {}
         self.needed_items = []
         self.obtained_items = {}
+        self.notfound_items = []
         self.materials = {}
 
     def _loaditemsdb(self):
@@ -49,6 +50,8 @@ class GenerateItems:
                 for i in xrange(int(item.get("num"))):
                     for rec in self.items_db.get(item.get("obj")).get("ic"):
                         yield rec
+            else:
+                self.notfound_items.append(item.get("obj"))
 
     def _storematerial(self, item):
         if self.materials.has_key(item.get("obj")):
@@ -73,6 +76,8 @@ class GenerateItems:
                     self._storematerial(dep)
 
     def report(self):
+        for item in sorted(self.notfound_items):
+            self.logger.debug("[ {0} ] not found in items db".format(item))
         for k, v in sorted(self.materials.items()):
             self.logger.info("{0}: {1}".format(k, v))
 
