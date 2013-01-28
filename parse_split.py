@@ -97,6 +97,7 @@ class ICItemParser(ABCIUParser):
     terminator = "\r\n{0}\r\n".format(ABCSectionParser.seperator_minus)
     item_regex = re.compile(r"(.+)\(.+\):(.+)\n(\[ \])?\s+- -", flags=re.DOTALL)
     multiple_regex = re.compile(r"(\d+)x (.+)")
+    error_corrections = {"Hearthstone Neclace": "Hearthstone Necklace"}
 
     def foundterminator(self):
         _match = self.item_regex.search(self.data)
@@ -105,13 +106,21 @@ class ICItemParser(ABCIUParser):
             _materials = _match.group(2)
             self.setitemdata(_item, _materials)
 
+    def _error_correct(self, item):
+        if self.error_corrections.has_key(item):
+            return self.error_corrections.get(item)
+        else:
+            return item
+
     def setitemdata(self, item, materials):
         if item:
             item = item.strip().strip('"')
+            item = self._error_correct(item)
             if materials:
                 materials = [x.strip().strip('"') for x in materials.splitlines()]
                 _tmp = []
                 for each in materials:
+                    each = self._error_correct(each)
                     _match = self.multiple_regex.match(each)
                     if _match:
                         _tmp.append({"num": _match.groups()[0],
