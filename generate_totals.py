@@ -11,7 +11,7 @@ class GenerateItems:
         self.needed_items_file = needed_items_file
         self.obtained_items_file = obtained_items_file
         self.items_db = {}
-        self.needed_items = []
+        self.needed_items = {}
         self.obtained_items = {}
         self.notfound_items = []
         self.materials = {}
@@ -21,11 +21,11 @@ class GenerateItems:
             self.items_db = json.load(f)
 
     def _loadneededitems(self):
-        self.needed_items = []
+        self.needed_items = {}
         with open(self.needed_items_file, "r") as f:
             for _line in f:
                 (_num, _obj) = _line.strip().split('|')
-                self.needed_items.append({"num": int(_num), "obj": _obj})
+                self.needed_items[_obj] = int(_num)
 
     def _loadobtaineditems(self):
         self.obtained_items = {}
@@ -45,13 +45,13 @@ class GenerateItems:
         self._aggregate(self._itericdeps(), recursive)
 
     def _itericdeps(self):
-        for item in self.needed_items:
-            if self.items_db.has_key(item.get("obj")):
-                for i in xrange(int(item.get("num"))):
-                    for rec in self.items_db.get(item.get("obj")).get("ic"):
+        for _obj, _num in self.needed_items.items():
+            if self.items_db.has_key(_obj):
+                for i in xrange(_num):
+                    for rec in self.items_db.get(_obj).get("ic"):
                         yield rec
             else:
-                self.notfound_items.append(item.get("obj"))
+                self.notfound_items.append(_obj)
 
     def _storematerial(self, item):
         if self.materials.has_key(item.get("obj")):
