@@ -132,5 +132,18 @@ class TestRecursiveFlattened(AggregationTestCase):
 
         self.assertEqual(self.gi.materials, expected_results)
 
+    def test_mixed(self):
+        self.gi.needed_items = [{"obj": "Memos of a Master Marksman", "num": 2},
+                                {"obj": "Memoirs of a Hunter", "num": 4},
+                                {"obj": "Kenaf Cloth", "num": 2}]
+        expected_results = {"Fresh Herb": 72,
+                            "Lentesco Wood": 24,
+                            "Pius Wood": 8,
+                            "Dragon Fang": 8}
+
+        self._run_aggregate()
+
+        self.assertEqual(self.gi.materials, expected_results)
+
 if __name__ == "__main__":
     unittest.main()
