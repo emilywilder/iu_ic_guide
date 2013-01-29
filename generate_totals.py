@@ -65,12 +65,9 @@ class GenerateItems:
                 self.obtained_items[dep.get("obj")] = max(0, left)
                 if left < 0:
                     dep = {"num": abs(left), "obj": dep.get("obj")}
-                else:
-                    dep = {"num": 0, "obj": dep.get("obj")}
-                if recursive and self.items_db.has_key(dep.get("obj")):
-                    self._aggregate([dep], recursive)
-                else:
-                    if dep.get("num") > 0:
+                    if recursive and self.items_db.has_key(dep.get("obj")):
+                        self._aggregate([dep], recursive)
+                    else:
                         self._storematerial(dep)
 
     def report(self):
