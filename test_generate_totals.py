@@ -20,16 +20,29 @@ class TestGenerateItems(unittest.TestCase):
                 {"num": 1, "obj": "Dragon Fang"}]}
         }
 
-    @unittest.skip("future functionality")
     def test_flatten(self):
-        test_data = {"Memos of a Master Marksman": 2,
-                     "Memoirs of a Hunter": 4}
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
+        expected_results = {"Halgitian Paper": 6,
+                            "Genius's Quill": 6,
+                            "Memoirs of a Hunter": 2}
+
+        self.gi.needed_items = test_data
+        self.gi._flattenneededitems()
+        self.gi._aggregate(self.gi.needed_items)
+
+        self.assertEqual(self.gi.materials, expected_results)
+
+    def test_flatten_recursive(self):
+        test_data = [{"obj": "Memos of a Master Marksman", "num": 2},
+                     {"obj": "Memoirs of a Hunter", "num": 4}]
         expected_results = {"Kenaf Cloth": 36,
                             "Lentesco Wood": 24,
                             "Pius Wood": 8,
                             "Dragon Fang": 8}
 
         self.gi.needed_items = test_data
+        self.gi._flattenneededitems()
         self.gi._aggregate(self.gi.needed_items, recursive=True)
 
         self.assertEqual(self.gi.materials, expected_results)

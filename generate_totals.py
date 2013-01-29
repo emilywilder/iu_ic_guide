@@ -15,6 +15,10 @@ class GenerateItems:
         self.obtained_items = {}
         self.notfound_items = []
         self.materials = {}
+        self.flatten = False
+
+    def setflatten(self, flatten):
+        self.flatten = flatten
 
     def _loaditemsdb(self):
         with open(self.item_db_file, "r") as f:
@@ -32,6 +36,23 @@ class GenerateItems:
                 else:
                     self.notfound_items.append(_obj)
 
+    def _flattenneededitems(self):
+        flattened_items = []
+        deps = {}
+        for item in self.needed_items:
+            ic = self.items_db.get(item.get("obj")).get("ic")
+            for dep in [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} for x in ic]:
+                if deps.has_key(dep.get("obj")):
+                    deps[dep.get("obj")] += dep.get("num")
+                else:
+                    deps[dep.get("obj")] = dep.get("num")
+
+        for item in self.needed_items:
+            num = max(0, item.get("num") - deps.get(item.get("obj"), 0))
+            flattened_items.append({"obj": item.get("obj"), "num": num})
+
+        self.needed_items = flattened_items
+
     def _loadobtaineditems(self):
         self.obtained_items = {}
         if self.obtained_items_file:
@@ -44,6 +65,8 @@ class GenerateItems:
         self._loaditemsdb()
         self._loadneededitems()
         self._loadobtaineditems()
+        if self.flatten:
+            self._flattenneededitems()
 
     def aggregate(self, recursive=False):
         self._loaddata()
@@ -85,6 +108,8 @@ if __name__ == "__main__":
     parser.add_argument("--obtaineditems", help="file of items already obtained")
     parser.add_argument("--recursive", action="store_true", default=False,
                         help="aggregate totals recursively")
+    parser.add_argument("--flatten", action="store_true", default=False,
+                        help="assume requested items will be used to make other items")
     parser.add_argument("neededitems", help="file of items needed")
 
     args = parser.parse_args()
@@ -97,6 +122,8 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(message)s", level=llevel)
 
     gi = GenerateItems(args.itemdb, args.neededitems, args.obtaineditems)
+    if args.flatten:
+        gi.setflatten(True)
     gi.aggregate(recursive=args.recursive)
     gi.report()
 
