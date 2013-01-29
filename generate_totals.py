@@ -11,7 +11,7 @@ class GenerateItems:
         self.needed_items_file = needed_items_file
         self.obtained_items_file = obtained_items_file
         self.items_db = {}
-        self.needed_items = {}
+        self.needed_items = []
         self.obtained_items = {}
         self.notfound_items = []
         self.materials = {}
@@ -21,11 +21,16 @@ class GenerateItems:
             self.items_db = json.load(f)
 
     def _loadneededitems(self):
-        self.needed_items = {}
+        self.needed_items = []
+        if not self.items_db:
+            raise Exception("items_db must be loaded before calling _loadneededitems")
         with open(self.needed_items_file, "r") as f:
             for _line in f:
                 (_num, _obj) = _line.strip().split('|')
-                self.needed_items[_obj] = int(_num)
+                if self.items_db.has_key(_obj):
+                    self.needed_items.append({"obj": _obj, "num": int(_num)})
+                else:
+                    self.notfound_items.append(_obj)
 
     def _loadobtaineditems(self):
         self.obtained_items = {}
@@ -42,16 +47,7 @@ class GenerateItems:
 
     def aggregate(self, recursive=False):
         self._loaddata()
-        self._aggregate(self._itericdeps(), recursive)
-
-    def _itericdeps(self):
-        for _obj, _num in self.needed_items.items():
-            if self.items_db.has_key(_obj):
-                for i in xrange(_num):
-                    for rec in self.items_db.get(_obj).get("ic"):
-                        yield rec
-            else:
-                self.notfound_items.append(_obj)
+        self._aggregate(self.needed_items, recursive)
 
     def _storematerial(self, item):
         if self.materials.has_key(item.get("obj")):
@@ -60,20 +56,22 @@ class GenerateItems:
             self.materials[item.get("obj")] = int(item.get("num"))
 
     def _aggregate(self, dataset, recursive=False):
-        for dep in dataset:
-            left = self.obtained_items.get(dep.get("obj"), 0) - int(dep.get("num"))
-            self.obtained_items[dep.get("obj")] = max(0, left)
-            if left < 0:
-                dep = {"num": abs(left), "obj": dep.get("obj")}
-            else:
-                dep = {"num": 0, "obj": dep.get("obj")}
-            if recursive and self.items_db.has_key(dep.get("obj")):
-                rec = self.items_db.get(dep.get("obj")).get("ic")
-                for i in xrange(int(dep.get("num"))):
-                    self._aggregate(rec, recursive)
-            else:
-                if dep.get("num") > 0:
-                    self._storematerial(dep)
+        self.logger.debug("_aggregate:dataset: {0}".format(dataset))
+        for item in dataset:
+            deps = self.items_db.get(item.get("obj")).get("ic")
+            deps = [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} for x in deps]
+            for dep in deps:
+                left = self.obtained_items.get(dep.get("obj"), 0) - int(dep.get("num"))
+                self.obtained_items[dep.get("obj")] = max(0, left)
+                if left < 0:
+                    dep = {"num": abs(left), "obj": dep.get("obj")}
+                else:
+                    dep = {"num": 0, "obj": dep.get("obj")}
+                if recursive and self.items_db.has_key(dep.get("obj")):
+                    self._aggregate([dep], recursive)
+                else:
+                    if dep.get("num") > 0:
+                        self._storematerial(dep)
 
     def report(self):
         for item in sorted(self.notfound_items):
