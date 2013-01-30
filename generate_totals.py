@@ -103,7 +103,11 @@ class GenerateItems:
         for item in sorted(self.notfound_items):
             self.logger.debug("[ {0} ] not found in items db".format(item))
         for k, v in sorted(self.materials.items()):
-            self.logger.info("{0}: {1}".format(k, v))
+            total_rpt = ""
+            obtained = self.obtained_items.get(k)
+            if obtained > 0:
+                total_rpt = " ({0} total)".format(obtained + v)
+            self.logger.info("{0}: {1}{2}".format(k, v, total_rpt))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolve items needed for IC",
