@@ -54,6 +54,7 @@ class GenerateItems:
         self._aggregate(self.needed_items, recursive)
 
     def _storematerial(self, item):
+        self.logger.debug("_storematerial:\t{0}".format(item))
         if self.materials.has_key(item.get("obj")):
             self.materials[item.get("obj")] += int(item.get("num"))
         else:
@@ -64,21 +65,20 @@ class GenerateItems:
 
     def _handleobtained(self, item):
         left = self._getremaining(item)
-        self.logger.debug("_aggregate:left:\t\t\t{0}".format(left))
+        self.logger.debug("_handleobtained:left:\t[ {0}:{1} ]".format(item.get("obj"), left))
         self.obtained_items[item.get("obj")] = max(0, left)
-        self.logger.debug("_aggregate:obtained[{1}]:\t\t\t{0}".format(max(0, left), item.get("obj")))
+        self.logger.debug("_handleobtained:obtained[{1}]:\t{0}".format(max(0, left), item.get("obj")))
         if left < 0:
             return {"num": abs(left), "obj": item.get("obj")}
         else:
             return None
 
     def _aggregate(self, dataset, recursive=False):
-        self.logger.debug("_aggregate:dataset:\t{0}".format(dataset))
         for item in dataset:
             deps = self.items_db.get(item.get("obj")).get("ic")
             deps = [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} for x in deps]
-            self.logger.debug("_aggregate:deps:\t\t{0}".format(deps))
             for dep in deps:
+            self.logger.debug("_aggregate:item:\t{0}".format(item))
                 dep = self._handleobtained(dep)
                 if dep:
                     if recursive and self.items_db.has_key(dep.get("obj")):
