@@ -4,8 +4,8 @@ import generate_totals
 
 class AggregationTestCase(unittest.TestCase):
     def setUp(self):
-        self.flatten = False
         self.recursive = False
+        self.flatten = False
         self.gi = generate_totals.GenerateItems(None, None)
         self.gi.needed_items = [{"obj": "Memos of a Master Marksman", "num": 2},
                                 {"obj": "Memoirs of a Hunter", "num": 4}]
@@ -41,8 +41,8 @@ class TestBasic(AggregationTestCase):
         self.assertEqual(self.gi.materials, expected_results)
 
     def test_obtained(self):
-        obtained_data = { "Halgitian Paper": 3,
-                          "Genius's Quill": 5 }
+        obtained_data = {"Halgitian Paper": 3,
+                         "Genius's Quill": 5}
         expected_results = {"Halgitian Paper": 9,
                             "Genius's Quill": 3,
                             "Memoirs of a Hunter": 2}
