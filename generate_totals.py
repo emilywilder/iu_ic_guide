@@ -15,10 +15,10 @@ class GenerateItems:
         self.obtained_items = {}
         self.notfound_items = []
         self.materials = {}
-        self.flatten = False
+        self.consolidate = False
 
-    def setflatten(self, flatten):
-        self.flatten = flatten
+    def setconsolidate(self, consolidate):
+        self.consolidate = consolidate
 
     def _loaditemsdb(self):
         with open(self.item_db_file, "r") as f:
@@ -51,8 +51,8 @@ class GenerateItems:
 
     def aggregate(self, recursive=False):
         self._loaddata()
-        if self.flatten:
-            self._flatten()
+        if self.consolidate:
+            self._consolidate()
         self._aggregate(self.needed_items, recursive)
 
     def _storematerial(self, item):
@@ -62,7 +62,7 @@ class GenerateItems:
         else:
             self.materials[item.get("obj")] = int(item.get("num"))
 
-    def _flatten(self):
+    def _consolidate(self):
         for item in self.needed_items:
             if self.obtained_items.has_key(item.get("obj")):
                 self.obtained_items[item.get("obj")] += int(item.get("num"))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     parser.add_argument("--obtaineditems", help="file of items already obtained")
     parser.add_argument("--recursive", action="store_true", default=False,
                         help="aggregate totals recursively")
-    parser.add_argument("--flatten", action="store_true", default=False,
+    parser.add_argument("--consolidate", action="store_true", default=False,
                         help="assume requested items will be used to make other items")
     parser.add_argument("neededitems", help="file of items needed")
 
@@ -126,8 +126,8 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(message)s", level=llevel)
 
     gi = GenerateItems(args.itemdb, args.neededitems, args.obtaineditems)
-    if args.flatten:
-        gi.setflatten(True)
+    if args.consolidate:
+        gi.setconsolidate(True)
     gi.aggregate(recursive=args.recursive)
     gi.report()
 

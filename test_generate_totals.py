@@ -5,7 +5,7 @@ import generate_totals
 class AggregationTestCase(unittest.TestCase):
     def setUp(self):
         self.recursive = False
-        self.flatten = False
+        self.consolidate = False
         self.gi = generate_totals.GenerateItems(None, None)
         self.gi.needed_items = [{"obj": "Memos of a Master Marksman", "num": 2},
                                 {"obj": "Memoirs of a Hunter", "num": 4}]
@@ -26,8 +26,8 @@ class AggregationTestCase(unittest.TestCase):
                 {"num": 2, "obj": "Fresh Herb"}]}}
 
     def _run_aggregate(self):
-        if self.flatten:
-            self.gi._flatten()
+        if self.consolidate:
+            self.gi._consolidate()
         self.gi._aggregate(self.gi.needed_items, recursive=self.recursive)
 
 class TestBasic(AggregationTestCase):
@@ -102,12 +102,12 @@ class TestRecursive(AggregationTestCase):
 
         self.assertEqual(self.gi.materials, expected_results)
 
-class TestFlattened(AggregationTestCase):
+class TestConsolidate(AggregationTestCase):
     def setUp(self):
         AggregationTestCase.setUp(self)
-        self.flatten = True
+        self.consolidate = True
 
-    def test_flatten(self):
+    def test_consolidate(self):
         expected_results = {"Halgitian Paper": 12,
                             "Genius's Quill": 8}
 
@@ -115,13 +115,13 @@ class TestFlattened(AggregationTestCase):
 
         self.assertEqual(self.gi.materials, expected_results)
 
-class TestRecursiveFlattened(AggregationTestCase):
+class TestRecursiveConsolidate(AggregationTestCase):
     def setUp(self):
         AggregationTestCase.setUp(self)
         self.recursive = True
-        self.flatten = True
+        self.consolidate = True
 
-    def test_flatten(self):
+    def test_consolidate(self):
         expected_results = {"Fresh Herb": 72,
                             "Lentesco Wood": 24,
                             "Pius Wood": 8,
