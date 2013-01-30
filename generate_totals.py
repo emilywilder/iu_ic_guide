@@ -60,6 +60,10 @@ class GenerateItems:
         else:
             self.materials[item.get("obj")] = int(item.get("num"))
 
+    def _getdeps(self, item):
+        return [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} \
+                for x in self.items_db.get(item.get("obj")).get("ic")]
+
     def _getremaining(self, item):
         return self.obtained_items.get(item.get("obj"), 0) - int(item.get("num"))
 
@@ -75,10 +79,8 @@ class GenerateItems:
 
     def _aggregate(self, dataset, recursive=False):
         for item in dataset:
-            deps = self.items_db.get(item.get("obj")).get("ic")
-            deps = [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} for x in deps]
-            for dep in deps:
             self.logger.debug("_aggregate:item:\t{0}".format(item))
+            for dep in self._getdeps(item):
                 dep = self._handleobtained(dep)
                 if dep:
                     if recursive and self.items_db.has_key(dep.get("obj")):
