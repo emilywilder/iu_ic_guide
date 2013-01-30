@@ -108,9 +108,8 @@ class TestFlattened(AggregationTestCase):
         self.flatten = True
 
     def test_flatten(self):
-        expected_results = {"Halgitian Paper": 6,
-                            "Genius's Quill": 6,
-                            "Memoirs of a Hunter": 2}
+        expected_results = {"Halgitian Paper": 12,
+                            "Genius's Quill": 8}
 
         self._run_aggregate()
 
