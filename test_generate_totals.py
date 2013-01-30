@@ -27,7 +27,7 @@ class AggregationTestCase(unittest.TestCase):
 
     def _run_aggregate(self):
         if self.flatten:
-            self.gi._flattenneededitems()
+            self.gi._flatten()
         self.gi._aggregate(self.gi.needed_items, recursive=self.recursive)
 
 class TestBasic(AggregationTestCase):

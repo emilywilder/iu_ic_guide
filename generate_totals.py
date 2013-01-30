@@ -51,6 +51,8 @@ class GenerateItems:
 
     def aggregate(self, recursive=False):
         self._loaddata()
+        if self.flatten:
+            self._flatten()
         self._aggregate(self.needed_items, recursive)
 
     def _storematerial(self, item):
@@ -59,6 +61,13 @@ class GenerateItems:
             self.materials[item.get("obj")] += int(item.get("num"))
         else:
             self.materials[item.get("obj")] = int(item.get("num"))
+
+    def _flatten(self):
+        for item in self.needed_items:
+            if self.obtained_items.has_key(item.get("obj")):
+                self.obtained_items[item.get("obj")] += int(item.get("num"))
+            else:
+                self.obtained_items[item.get("obj")] = int(item.get("num"))
 
     def _getdeps(self, item):
         return [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} \
