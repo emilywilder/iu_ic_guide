@@ -13,6 +13,7 @@ class GenerateItems:
         self.items_db = {}
         self.needed_items = []
         self.obtained_items = {}
+        self.obtained_cache = {}
         self.notfound_items = []
         self.materials = {}
         self.consolidate = False
@@ -43,6 +44,7 @@ class GenerateItems:
                 for _line in f:
                     (_num, _obj) = _line.strip().split('|')
                     self.obtained_items[_obj] = int(_num)
+        self.obtained_cache = self.obtained_items.copy()
 
     def _loaddata(self):
         self._loaditemsdb()
@@ -64,22 +66,22 @@ class GenerateItems:
 
     def _consolidate(self):
         for item in self.needed_items:
-            if self.obtained_items.has_key(item.get("obj")):
-                self.obtained_items[item.get("obj")] += int(item.get("num"))
+            if self.obtained_cache.has_key(item.get("obj")):
+                self.obtained_cache[item.get("obj")] += int(item.get("num"))
             else:
-                self.obtained_items[item.get("obj")] = int(item.get("num"))
+                self.obtained_cache[item.get("obj")] = int(item.get("num"))
 
     def _getdeps(self, item):
         return [{"obj": x.get("obj"), "num": int(x.get("num")) * int(item.get("num"))} \
                 for x in self.items_db.get(item.get("obj")).get("ic")]
 
     def _getremaining(self, item):
-        return self.obtained_items.get(item.get("obj"), 0) - int(item.get("num"))
+        return self.obtained_cache.get(item.get("obj"), 0) - int(item.get("num"))
 
     def _handleobtained(self, item):
         left = self._getremaining(item)
         self.logger.debug("_handleobtained:left:\t[ {0}:{1} ]".format(item.get("obj"), left))
-        self.obtained_items[item.get("obj")] = max(0, left)
+        self.obtained_cache[item.get("obj")] = max(0, left)
         self.logger.debug("_handleobtained:obtained[{1}]:\t{0}".format(max(0, left), item.get("obj")))
         if left < 0:
             return {"num": abs(left), "obj": item.get("obj")}
