@@ -98,7 +98,8 @@ class ICItemParser(ABCIUParser):
     item_regex = re.compile(r"(.+)\(.+\):(.+)\n(\[ \])?\s+- -", flags=re.DOTALL)
     multiple_regex = re.compile(r"(\d+)x (.+)")
     error_corrections = {"Hearthstone Neclace": "Hearthstone Necklace",
-                         "Thousand Year Old Sigh": "Thousand Year Sigh"}
+                         "Thousand Year Old Sigh": "Thousand Year Sigh",
+                         "Cactis Needle": "Cactus Needle"}
 
     def foundterminator(self):
         _match = self.item_regex.search(self.data)
