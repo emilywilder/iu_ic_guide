@@ -122,14 +122,13 @@ class ICItemParser(ABCIUParser):
                 materials = [x.strip().strip('"') for x in materials.splitlines()]
                 _tmp = []
                 for each in materials:
-                    each = self._error_correct(each)
+                    _num = 1
+                    _obj = self._error_correct(each)
                     _match = self.multiple_regex.match(each)
                     if _match:
-                        _tmp.append({"num": _match.groups()[0],
-                                     "obj": _match.groups()[1]})
-                    else:
-                        _tmp.append({"num": 1,
-                                     "obj": each})
+                        _num = _match.groups()[0]
+                        _obj = self._error_correct(_match.groups()[1])
+                    _tmp.append({"num": _num, "obj": _obj})
                 self.itemdata[item] = { "ic": _tmp}
 
 class ParseSplit:
