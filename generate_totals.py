@@ -31,11 +31,12 @@ class GenerateItems:
             raise Exception("items_db must be loaded before calling _loadneededitems")
         with open(self.needed_items_file, "r") as f:
             for _line in f:
-                (_num, _obj) = _line.strip().split('|')
-                if self.items_db.has_key(_obj):
-                    self.needed_items.append({"obj": _obj, "num": int(_num)})
-                else:
-                    self.notfound_items.append(_obj)
+                if _line.strip() and not _line.startswith("#"):
+                    (_num, _obj) = _line.strip().split('|')
+                    if self.items_db.has_key(_obj):
+                        self.needed_items.append({"obj": _obj, "num": int(_num)})
+                    else:
+                        self.notfound_items.append(_obj)
 
     def _loadobtaineditems(self):
         self.obtained_items = {}
