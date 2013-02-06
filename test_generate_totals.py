@@ -47,7 +47,7 @@ class TestBasic(AggregationTestCase):
                             "Genius's Quill": 3,
                             "Memoirs of a Hunter": 2}
 
-        self.gi.obtained_items = obtained_data
+        self.gi.obtained_cache = obtained_data
         self._run_aggregate()
 
         self.assertEqual(self.gi.materials, expected_results)
@@ -58,7 +58,7 @@ class TestBasic(AggregationTestCase):
         expected_results = {"Genius's Quill": 1,
                             "Memoirs of a Hunter": 2}
 
-        self.gi.obtained_items = obtained_data
+        self.gi.obtained_cache = obtained_data
         self._run_aggregate()
 
         self.assertEqual(self.gi.materials, expected_results)
@@ -86,7 +86,7 @@ class TestRecursive(AggregationTestCase):
                             "Pius Wood": 5,
                             "Dragon Fang": 5}
 
-        self.gi.obtained_items = obtained_data
+        self.gi.obtained_cache = obtained_data
         self._run_aggregate()
 
         self.assertEqual(self.gi.materials, expected_results)
@@ -97,7 +97,7 @@ class TestRecursive(AggregationTestCase):
         expected_results = {"Fresh Herb": 6,
                             "Lentesco Wood": 2}
 
-        self.gi.obtained_items = obtained_data
+        self.gi.obtained_cache = obtained_data
         self._run_aggregate()
 
         self.assertEqual(self.gi.materials, expected_results)
